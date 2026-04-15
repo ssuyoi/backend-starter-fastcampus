@@ -1,19 +1,12 @@
 package com.backendstarter.calendarapp;
 
-import com.backendstarter.calendarapp.event.AbstractEvent;
-import com.backendstarter.calendarapp.event.Event;
-import com.backendstarter.calendarapp.event.EventType;
 import com.backendstarter.calendarapp.event.Meeting;
 import com.backendstarter.calendarapp.event.Schedule;
-import com.backendstarter.calendarapp.event.Todo;
+import com.backendstarter.calendarapp.event.update.UpdateMeeting;
 import com.backendstarter.calendarapp.reader.EventCsvReader;
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
@@ -28,7 +21,22 @@ public class CalendarAppApplication {
         List<Meeting> meetings = csvReader.readMeetings(meetingCsvPath);
         meetings.forEach(schedule::add);
 
-        schedule.printAll();
+        Meeting meeting = meetings.get(0);
+        meeting.print();
+        System.out.println("=== 수정 후 ===");
+
+        meetings.get(0).validateAndUpdate(
+            new UpdateMeeting(
+                "new title",
+                ZonedDateTime.now(),
+                ZonedDateTime.now().plusHours(1),
+                null,
+                "A",
+                "new Agenda"
+            )
+        );
+
+        meeting.print();
     }
 
 }
