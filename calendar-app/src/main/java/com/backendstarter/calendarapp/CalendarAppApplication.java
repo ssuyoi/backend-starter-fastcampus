@@ -36,6 +36,21 @@ public class CalendarAppApplication {
             )
         );
 
+        meeting.delete(true);
+        System.out.println("삭제 후 수정 시도 ...");
+
+        // Exception in thread "main" java.lang.RuntimeException: 이미 삭제된 이벤트는 수정할 수 없습니다.
+        meetings.get(0).validateAndUpdate(
+            new UpdateMeeting(
+                "new title2",
+                ZonedDateTime.now(),
+                ZonedDateTime.now().plusHours(1),
+                null,
+                "B",
+                "new Agenda2"
+            )
+        );
+
         meeting.print();
     }
 
