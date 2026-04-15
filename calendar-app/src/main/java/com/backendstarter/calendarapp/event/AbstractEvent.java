@@ -1,5 +1,6 @@
 package com.backendstarter.calendarapp.event;
 
+import com.backendstarter.calendarapp.event.update.AbstractAuditableEvent;
 import com.backendstarter.calendarapp.exception.InvalidEventException;
 import java.time.Duration;
 import java.time.Instant;
@@ -38,6 +39,25 @@ public abstract class AbstractEvent implements Event {
 
         this.deletedYn = false;
     }
+
+    public void validateAndUpdate(AbstractAuditableEvent update) {
+        if (deletedYn) {
+            throw new RuntimeException("이미 삭제된 이벤트는 수정할 수 없습니다.");
+        }
+
+        defaultUpdate(update);
+        update(update);
+    }
+
+    private void defaultUpdate(AbstractAuditableEvent update) {
+        this.title = update.getTitle();
+        this.startAt = update.getStartAt();
+        this.endAt = update.getEndAt();
+        this.duration = Duration.between(startAt, endAt);
+        this.modifiedAt = ZonedDateTime.now();
+    }
+
+    protected abstract void update(AbstractAuditableEvent update);
 
     public String getTitle() {
         return this.title;
