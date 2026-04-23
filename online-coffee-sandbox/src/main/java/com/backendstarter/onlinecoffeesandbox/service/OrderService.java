@@ -22,6 +22,8 @@ public class OrderService {
 
     public void newOrder(CreateOrder createOrder) {
         List<StoreProduct> storeProducts = new ArrayList<>();
+
+        // 상품별 재고 확인 및 차감
         for(Map.Entry<Integer, Integer> entry : createOrder.getQuantityByProduct().entrySet()) {
             Integer productId = entry.getKey();
             Integer buyQuantity = entry.getValue();
@@ -40,6 +42,8 @@ public class OrderService {
             storeProduct.adjustStockQuantity(buyQuantity);
             storeProducts.add(storeProduct);
         }
+
+        // 주문 저장 및 재고 업데이트
         Order entity = Order.newOrder(createOrder);
         orderRepository.save(entity);
         storeService.saveAll(storeProducts);

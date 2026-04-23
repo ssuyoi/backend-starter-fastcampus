@@ -16,6 +16,14 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
+    /**
+     * 신규 고객 등록
+     *
+     * @param name 이름
+     * @param address 주소
+     * @param phoneNumber 핸드폰번호
+     * @return 등록된 고객 정보 (CustomerDto)
+     */
     @PostMapping("/api/v1/customers")
     public Response<CustomerDto> createNewCustomer(
         @RequestParam String name,
