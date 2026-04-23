@@ -15,6 +15,9 @@ public class StoreService {
         this.storeProductRepository = storeProductRepository;
     }
 
+    /**
+     * 상품 재고 조회 - 존재하지 않으면 예외 발생
+     */
     public StoreProduct getStoreProduct(int storeId, int productId) {
         Optional<StoreProduct> storeProductOptional = storeProductRepository.findByStoreIdAndProductId(
             storeId, productId);

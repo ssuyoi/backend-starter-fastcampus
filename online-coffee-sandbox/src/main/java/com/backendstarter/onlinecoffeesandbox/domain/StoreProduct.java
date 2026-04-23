@@ -21,6 +21,9 @@ public class StoreProduct {
     @Column
     private int stockQuantity;
 
+    /**
+     * 상품 재고 조정 - 주문 수량이 재고보다 많으면 예외 발생
+     */
     public void adjustStockQuantity(int buyQuantity) {
         if (stockQuantity < buyQuantity) {
             throw new RuntimeException("재고보다 많을 수 없습니다.");

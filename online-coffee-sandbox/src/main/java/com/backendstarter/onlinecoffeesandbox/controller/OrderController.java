@@ -15,6 +15,12 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    /**
+     * 주문
+     *
+     * @param request 주문 요청 정보(customerId, storeId, products)
+     * @return 주문 처리 결과
+     */
     @PostMapping("/api/v1/orders")
     public Response<Void> newOrder(
         @RequestBody NewOrderRequest request
