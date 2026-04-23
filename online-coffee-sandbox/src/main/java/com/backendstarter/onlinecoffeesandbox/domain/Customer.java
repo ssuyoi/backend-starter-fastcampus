@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
-@Table(name="customer")
+@Table(name="customers")
 public class Customer {
 
     @Id
