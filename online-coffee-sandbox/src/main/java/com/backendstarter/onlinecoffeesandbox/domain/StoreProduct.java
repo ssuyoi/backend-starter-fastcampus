@@ -6,8 +6,9 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
-@Table(name = "storeProducts")
+@Table(name = "store_products")
 public class StoreProduct {
+
     @Id
     private int storeProductId;
 
@@ -19,4 +20,11 @@ public class StoreProduct {
 
     @Column
     private int stockQuantity;
+
+    public void adjustStockQuantity(int buyQuantity) {
+        if (stockQuantity < buyQuantity) {
+            throw new RuntimeException("재고보다 많을 수 없습니다.");
+        }
+        this.stockQuantity -= buyQuantity;
+    }
 }
