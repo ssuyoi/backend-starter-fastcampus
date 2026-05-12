@@ -1,0 +1,38 @@
+package com.backendstarter.threadboard.service;
+
+import com.backendstarter.threadboard.model.Post;
+import com.backendstarter.threadboard.model.PostPostRequestBody;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PostService {
+
+    private static final List<Post> posts = new ArrayList<>();
+
+    static {
+        posts.add(new Post(1L, "Post1", ZonedDateTime.now()));
+        posts.add(new Post(2L, "Post2", ZonedDateTime.now()));
+        posts.add(new Post(3L, "Post3", ZonedDateTime.now()));
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public Optional<Post> getPostByPostId(Long postId) {
+        return posts.stream().filter(post -> postId.equals(post.getPostId())).findFirst();
+    }
+
+
+    public Post createPost(PostPostRequestBody postPostRequestBody) {
+        Long newPostId = posts.stream().mapToLong(Post::getPostId).max().orElse(0L) + 1;
+
+        Post newPost = new Post(newPostId, postPostRequestBody.getBody(), ZonedDateTime.now());
+        posts.add(newPost);
+        return newPost;
+    }
+}
