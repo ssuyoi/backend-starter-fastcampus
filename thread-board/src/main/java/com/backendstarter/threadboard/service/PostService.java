@@ -1,12 +1,15 @@
 package com.backendstarter.threadboard.service;
 
 import com.backendstarter.threadboard.model.Post;
+import com.backendstarter.threadboard.model.PostPatchRequestBody;
 import com.backendstarter.threadboard.model.PostPostRequestBody;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PostService {
@@ -34,5 +37,18 @@ public class PostService {
         var newPost = new Post(newPostId, postPostRequestBody.body(), ZonedDateTime.now());
         posts.add(newPost);
         return newPost;
+    }
+
+    public Post updatePost(Long postId, PostPatchRequestBody postPatchRequestBody) {
+        Optional<Post> postOptional = posts.stream().filter(post -> postId.equals(post.getPostId()))
+            .findFirst();
+
+        if (postOptional.isPresent()) {
+            Post postToUpdate = postOptional.get();
+            postToUpdate.setBody(postPatchRequestBody.body());
+            return postToUpdate;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
+        }
     }
 }
