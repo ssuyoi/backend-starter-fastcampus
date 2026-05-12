@@ -24,7 +24,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<Post>> getPosts() {
-        List<Post> posts = postService.getPosts();
+        var posts = postService.getPosts();
         return ResponseEntity.ok(posts);
     }
 
@@ -38,7 +38,8 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<Post> createPost(@RequestBody PostPostRequestBody postPostRequestBody) {
-        Post post = postService.createPost(postPostRequestBody);
+        //변수명만 봐도 타입 추론이 가능한 경우 자동으로 타입을 지정해주는 var를 사용하면 편리함
+        var post = postService.createPost(postPostRequestBody);
         return ResponseEntity.ok(post);
     }
 }

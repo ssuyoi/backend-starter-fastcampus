@@ -29,9 +29,9 @@ public class PostService {
 
 
     public Post createPost(PostPostRequestBody postPostRequestBody) {
-        Long newPostId = posts.stream().mapToLong(Post::getPostId).max().orElse(0L) + 1;
+        var newPostId = posts.stream().mapToLong(Post::getPostId).max().orElse(0L) + 1;
 
-        Post newPost = new Post(newPostId, postPostRequestBody.getBody(), ZonedDateTime.now());
+        var newPost = new Post(newPostId, postPostRequestBody.body(), ZonedDateTime.now());
         posts.add(newPost);
         return newPost;
     }
