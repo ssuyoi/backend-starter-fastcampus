@@ -3,10 +3,13 @@ package com.backendstarter.threadboard.service;
 import com.backendstarter.threadboard.model.Post;
 import com.backendstarter.threadboard.model.PostPatchRequestBody;
 import com.backendstarter.threadboard.model.PostPostRequestBody;
+import com.backendstarter.threadboard.model.entity.PostEntity;
+import com.backendstarter.threadboard.repository.PostEntityRepository;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,52 +17,53 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class PostService {
 
+    @Autowired
+    private PostEntityRepository postEntityRepository;
+
     private static final List<Post> posts = new ArrayList<>();
 
-    static {
-        posts.add(new Post(1L, "Post1", ZonedDateTime.now()));
-        posts.add(new Post(2L, "Post2", ZonedDateTime.now()));
-        posts.add(new Post(3L, "Post3", ZonedDateTime.now()));
-    }
-
     public List<Post> getPosts() {
-        return posts;
+        var postEntities = postEntityRepository.findAll();
+
+        //서비스에 실제로 필요한 데이터만 DTO로
+        return postEntities.stream().map(Post::from).toList();
     }
 
-    public Optional<Post> getPostByPostId(Long postId) {
-        return posts.stream().filter(post -> postId.equals(post.getPostId())).findFirst();
+    public Post getPostByPostId(Long postId) {
+        var postEntity = postEntityRepository
+            .findById(postId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        return Post.from(postEntity);
     }
 
 
     public Post createPost(PostPostRequestBody postPostRequestBody) {
-        var newPostId = posts.stream().mapToLong(Post::getPostId).max().orElse(0L) + 1;
+        var postEntity = new PostEntity();
+        postEntity.setBody(postPostRequestBody.body());
+        var savedPostEntity = postEntityRepository.save(postEntity);
 
-        var newPost = new Post(newPostId, postPostRequestBody.body(), ZonedDateTime.now());
-        posts.add(newPost);
-        return newPost;
+        return Post.from(savedPostEntity);
     }
 
     public Post updatePost(Long postId, PostPatchRequestBody postPatchRequestBody) {
-        Optional<Post> postOptional = posts.stream().filter(post -> postId.equals(post.getPostId()))
-            .findFirst();
+        var postEntity = postEntityRepository
+            .findById(postId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        postEntity.setBody(postPatchRequestBody.body());
+        var savedPostEntity = postEntityRepository.save(postEntity);
 
-        if (postOptional.isPresent()) {
-            Post postToUpdate = postOptional.get();
-            postToUpdate.setBody(postPatchRequestBody.body());
-            return postToUpdate;
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
-        }
+        return Post.from(savedPostEntity);
     }
 
     public void deletePost(Long postId) {
-        Optional<Post> postOptional = posts.stream().filter(post -> postId.equals(post.getPostId()))
-            .findFirst();
+        var postEntity = postEntityRepository
+            .findById(postId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
-        if (postOptional.isPresent()) {
-            posts.remove(postOptional.get());
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
-        }
+        postEntityRepository.delete(postEntity);
     }
 }

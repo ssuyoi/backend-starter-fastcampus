@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -88,5 +90,16 @@ public class PostEntity {
     @Override
     public int hashCode() {
         return Objects.hash(postId, body, createdDateTime, updatedDateTime, deletedDateTime);
+    }
+
+    @PrePersist
+    private void prePersist() {
+        this.createdDateTime = ZonedDateTime.now();
+        this.updatedDateTime = ZonedDateTime.now();
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.updatedDateTime = ZonedDateTime.now();
     }
 }
