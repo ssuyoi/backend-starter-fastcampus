@@ -18,3 +18,7 @@ spring:
   security:
     user.name: ${ADMIN_USERNAME}
     user.password: ${ADMIN_PASSWORD}
+  logging:
+    level:
+      #TRACE < DEBUG < INFO < WARN < ERROR
+      root: INFO
