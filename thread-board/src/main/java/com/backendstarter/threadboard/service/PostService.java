@@ -1,14 +1,13 @@
 package com.backendstarter.threadboard.service;
 
+import com.backendstarter.threadboard.exception.post.PostNotFoundException;
 import com.backendstarter.threadboard.model.Post;
 import com.backendstarter.threadboard.model.PostPatchRequestBody;
 import com.backendstarter.threadboard.model.PostPostRequestBody;
 import com.backendstarter.threadboard.model.entity.PostEntity;
 import com.backendstarter.threadboard.repository.PostEntityRepository;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class PostService {
         var postEntity = postEntityRepository
             .findById(postId)
             .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+                () -> new PostNotFoundException(postId));
 
         return Post.from(postEntity);
     }
@@ -51,7 +50,7 @@ public class PostService {
         var postEntity = postEntityRepository
             .findById(postId)
             .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+                () -> new PostNotFoundException());
         postEntity.setBody(postPatchRequestBody.body());
         var savedPostEntity = postEntityRepository.save(postEntity);
 
