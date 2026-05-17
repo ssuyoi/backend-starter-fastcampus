@@ -1,15 +1,13 @@
 package com.backendstarter.threadboard.controller;
 
-import com.backendstarter.threadboard.model.Post;
-import com.backendstarter.threadboard.model.PostPatchRequestBody;
-import com.backendstarter.threadboard.model.PostPostRequestBody;
+import com.backendstarter.threadboard.model.post.Post;
+import com.backendstarter.threadboard.model.post.PostPatchRequestBody;
+import com.backendstarter.threadboard.model.post.PostPostRequestBody;
 import com.backendstarter.threadboard.service.PostService;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

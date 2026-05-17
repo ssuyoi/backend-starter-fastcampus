@@ -1,9 +1,9 @@
 package com.backendstarter.threadboard.service;
 
 import com.backendstarter.threadboard.exception.post.PostNotFoundException;
-import com.backendstarter.threadboard.model.Post;
-import com.backendstarter.threadboard.model.PostPatchRequestBody;
-import com.backendstarter.threadboard.model.PostPostRequestBody;
+import com.backendstarter.threadboard.model.post.Post;
+import com.backendstarter.threadboard.model.post.PostPatchRequestBody;
+import com.backendstarter.threadboard.model.post.PostPostRequestBody;
 import com.backendstarter.threadboard.model.entity.PostEntity;
 import com.backendstarter.threadboard.repository.PostEntityRepository;
 import java.util.ArrayList;
