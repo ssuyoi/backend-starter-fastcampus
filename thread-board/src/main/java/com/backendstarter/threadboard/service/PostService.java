@@ -2,12 +2,14 @@ package com.backendstarter.threadboard.service;
 
 import com.backendstarter.threadboard.exception.post.PostNotFoundException;
 import com.backendstarter.threadboard.exception.user.UserNotAllowedException;
+import com.backendstarter.threadboard.exception.user.UserNotFoundException;
+import com.backendstarter.threadboard.model.entity.PostEntity;
 import com.backendstarter.threadboard.model.entity.UserEntity;
 import com.backendstarter.threadboard.model.post.Post;
 import com.backendstarter.threadboard.model.post.PostPatchRequestBody;
 import com.backendstarter.threadboard.model.post.PostPostRequestBody;
-import com.backendstarter.threadboard.model.entity.PostEntity;
 import com.backendstarter.threadboard.repository.PostEntityRepository;
+import com.backendstarter.threadboard.repository.UserEntityRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ public class PostService {
 
     @Autowired
     private PostEntityRepository postEntityRepository;
+    @Autowired
+    private UserEntityRepository userEntityRepository;
 
     private static final List<Post> posts = new ArrayList<>();
 
@@ -76,5 +80,16 @@ public class PostService {
         }
 
         postEntityRepository.delete(postEntity);
+    }
+
+    public List<Post> getPostsByUsername(String username) {
+
+        var userEntity = userEntityRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+
+        var postEntities = postEntityRepository.findByUser(userEntity);
+
+        return postEntities.stream().map(Post::from).toList();
     }
 }
