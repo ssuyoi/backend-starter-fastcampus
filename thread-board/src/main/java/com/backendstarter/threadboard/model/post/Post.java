@@ -1,4 +1,4 @@
-package com.backendstarter.threadboard.model;
+package com.backendstarter.threadboard.model.post;
 
 import com.backendstarter.threadboard.model.entity.PostEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
