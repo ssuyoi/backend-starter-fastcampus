@@ -1,6 +1,8 @@
 package com.backendstarter.threadboard.controller;
 
 import com.backendstarter.threadboard.model.user.User;
+import com.backendstarter.threadboard.model.user.UserAuthenticationResponse;
+import com.backendstarter.threadboard.model.user.UserLoginRequestBody;
 import com.backendstarter.threadboard.model.user.UserSignUpRequestBody;
 import com.backendstarter.threadboard.service.UserService;
 import jakarta.validation.Valid;
@@ -24,6 +26,14 @@ public class UserController {
 
         var user = userService.signUp(userSignUpRequestBody.username(), userSignUpRequestBody.password());
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<UserAuthenticationResponse> authenticate(
+        @Valid @RequestBody UserLoginRequestBody userLoginRequestBody) {
+
+        var response = userService.authenticate(userLoginRequestBody.username(), userLoginRequestBody.password());
+        return ResponseEntity.ok(response);
     }
 
 }

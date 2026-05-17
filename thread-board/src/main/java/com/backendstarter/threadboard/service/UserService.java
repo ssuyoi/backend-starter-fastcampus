@@ -4,7 +4,9 @@ import com.backendstarter.threadboard.exception.user.UserAlreadyExistsException;
 import com.backendstarter.threadboard.exception.user.UserNotFoundException;
 import com.backendstarter.threadboard.model.entity.UserEntity;
 import com.backendstarter.threadboard.model.user.User;
+import com.backendstarter.threadboard.model.user.UserAuthenticationResponse;
 import com.backendstarter.threadboard.repository.UserEntityRepository;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,6 +22,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -40,5 +45,20 @@ public class UserService implements UserDetailsService {
         var savedUserEntity = userEntityRepository.save(userEntity);
 
         return User.from(savedUserEntity);
+    }
+
+    public UserAuthenticationResponse authenticate(@NotEmpty String username,
+        @NotEmpty String password) {
+        var userEntity = userEntityRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+
+        if (passwordEncoder.matches(password, userEntity.getPassword())) {
+            //패스워드 일치 -> jwt accessToken 발급
+            var accessToken = jwtService.generateAccessToken(userEntity);
+            return new UserAuthenticationResponse(accessToken);
+        } else {
+            throw new UserNotFoundException();
+        }
     }
 }
