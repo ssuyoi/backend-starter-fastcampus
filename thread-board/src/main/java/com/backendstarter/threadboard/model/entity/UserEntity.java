@@ -10,7 +10,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import org.hibernate.annotations.SQLDelete;
@@ -54,8 +53,10 @@ public class UserEntity implements UserDetails {
         userEntity.setUsername(username);
         userEntity.setPassword(password);
 
-        userEntity.setProfile("https://avatar.iran.liara.run/public/" + new Random().nextInt(100));
-        //userEntity.setProfile("https://dev-jayce.github.io/public/profile/" + new Random().nextInt(100)+".png");
+        userEntity.setProfile(
+            "https://dev-jayce.github.io/public/profile/" + (new Random().nextInt(100) + 1)
+                + ".png");
+
         return userEntity;
     }
 
