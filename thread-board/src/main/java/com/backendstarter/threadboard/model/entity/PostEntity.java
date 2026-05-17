@@ -109,6 +109,14 @@ public class PostEntity {
         return Objects.hash(postId, body, createdDateTime, updatedDateTime, deletedDateTime, user);
     }
 
+    // PostService에서 직접 처리하던 로직 이동 => 엔티티 생성 책임을 서비스 레이어 대신 엔티티에서 갖도록 관심사 분리
+    public static PostEntity of(String body, UserEntity user) {
+        var post = new PostEntity();
+        post.setBody(body);
+        post.setUser(user);
+        return post;
+    }
+
     @PrePersist
     private void prePersist() {
         this.createdDateTime = ZonedDateTime.now();
