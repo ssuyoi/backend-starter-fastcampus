@@ -49,6 +49,8 @@ cd thread-board
 
 ```bash
 docker run -p 3000:3000 devjayce/board:user-post-apis
+docker run -p 3000:3000 devjayce/board:reply-apis
+docker run -p 3000:3000 devjayce/board:like-api
 ```
 
 `http://localhost:3000` 에서 확인
