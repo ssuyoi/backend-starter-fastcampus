@@ -32,20 +32,25 @@ public class PostService {
 
     private static final List<Post> posts = new ArrayList<>();
 
-    public List<Post> getPosts() {
+    public List<Post> getPosts(UserEntity currentUser) {
         var postEntities = postEntityRepository.findAll();
 
         //서비스에 실제로 필요한 데이터만 DTO로
-        return postEntities.stream().map(Post::from).toList();
+        return postEntities.stream()
+            .map(postEntity -> getPostWithLikingStatus(postEntity, currentUser)).toList();
     }
 
-    public Post getPostByPostId(Long postId) {
+    public Post getPostByPostId(Long postId, UserEntity currentUser) {
         var postEntity = postEntityRepository
             .findById(postId)
             .orElseThrow(
                 () -> new PostNotFoundException(postId));
+        return getPostWithLikingStatus(postEntity, currentUser);
+    }
 
-        return Post.from(postEntity);
+    private Post getPostWithLikingStatus(PostEntity postEntity, UserEntity currentUser) {
+        var isLiking = likeEntityRepository.findByUserAndPost(currentUser, postEntity).isPresent();
+        return Post.from(postEntity, isLiking);
     }
 
 
@@ -88,7 +93,7 @@ public class PostService {
         postEntityRepository.delete(postEntity);
     }
 
-    public List<Post> getPostsByUsername(String username) {
+    public List<Post> getPostsByUsername(String username, UserEntity currentUser) {
 
         var userEntity = userEntityRepository
             .findByUsername(username)
@@ -96,7 +101,8 @@ public class PostService {
 
         var postEntities = postEntityRepository.findByUser(userEntity);
 
-        return postEntities.stream().map(Post::from).toList();
+        return postEntities.stream()
+            .map(postEntity -> getPostWithLikingStatus(postEntity, currentUser)).toList();
     }
 
     @Transactional
@@ -110,11 +116,11 @@ public class PostService {
         if (likeEntity.isPresent()) {
             likeEntityRepository.delete(likeEntity.get());
             postEntity.setLikeCount(Math.max(0, postEntity.getLikeCount() - 1));
+            return Post.from(postEntityRepository.save(postEntity), false);
         } else {
             likeEntityRepository.save(LikeEntity.of(currentUser, postEntity));
             postEntity.setLikeCount(postEntity.getLikeCount() + 1);
+            return Post.from(postEntityRepository.save(postEntity), true);
         }
-
-        return Post.from(postEntityRepository.save(postEntity));
     }
 }

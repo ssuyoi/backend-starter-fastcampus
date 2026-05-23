@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,17 +29,17 @@ public class PostController {
     private PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<Post>> getPosts() {
+    public ResponseEntity<List<Post>> getPosts(Authentication authentication) {
         logger.info("GET/ api/v1/posts");
-        var posts = postService.getPosts();
+        var posts = postService.getPosts((UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(posts);
     }
 
 
     @GetMapping("/{postId}")
-    public ResponseEntity<Post> getPostByPostId(@PathVariable Long postId) {
+    public ResponseEntity<Post> getPostByPostId(@PathVariable Long postId, Authentication authentication) {
         logger.info("GET/api/v1/posts/{}", postId);
-        var matchingPost = postService.getPostByPostId(postId);
+        var matchingPost = postService.getPostByPostId(postId,(UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(matchingPost);
     }
 
@@ -68,6 +67,6 @@ public class PostController {
     public ResponseEntity<Post> toggleLike(@PathVariable Long postId,
         Authentication authentication) {
         var post = postService.toggleLike(postId, (UserEntity) authentication.getPrincipal());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(post);
     }
 }
