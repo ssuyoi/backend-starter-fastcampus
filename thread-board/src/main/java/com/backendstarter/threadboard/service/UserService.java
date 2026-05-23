@@ -3,15 +3,22 @@ package com.backendstarter.threadboard.service;
 import com.backendstarter.threadboard.exception.follow.FollowAlreadyExistsException;
 import com.backendstarter.threadboard.exception.follow.FollowNotFoundException;
 import com.backendstarter.threadboard.exception.follow.InvalidFollowException;
+import com.backendstarter.threadboard.exception.post.PostNotFoundException;
 import com.backendstarter.threadboard.exception.user.UserAlreadyExistsException;
 import com.backendstarter.threadboard.exception.user.UserNotAllowedException;
 import com.backendstarter.threadboard.exception.user.UserNotFoundException;
 import com.backendstarter.threadboard.model.entity.FollowEntity;
+import com.backendstarter.threadboard.model.entity.LikeEntity;
+import com.backendstarter.threadboard.model.entity.PostEntity;
 import com.backendstarter.threadboard.model.entity.UserEntity;
+import com.backendstarter.threadboard.model.user.Follower;
+import com.backendstarter.threadboard.model.user.LikedUser;
 import com.backendstarter.threadboard.model.user.User;
 import com.backendstarter.threadboard.model.user.UserAuthenticationResponse;
 import com.backendstarter.threadboard.model.user.UserPatchRequestBody;
 import com.backendstarter.threadboard.repository.FollowEntityRepository;
+import com.backendstarter.threadboard.repository.LikeEntityRepository;
+import com.backendstarter.threadboard.repository.PostEntityRepository;
 import com.backendstarter.threadboard.repository.UserEntityRepository;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
@@ -33,6 +40,12 @@ public class UserService implements UserDetailsService {
     private FollowEntityRepository followEntityRepository;
 
     @Autowired
+    private PostEntityRepository postEntityRepository;
+
+    @Autowired
+    private LikeEntityRepository likeEntityRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -41,17 +54,14 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //var userEntity = userEntityRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        return userEntityRepository
-            .findByUsername(username)
+        return userEntityRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
     }
 
     public User signUp(String username, String password) {
-        userEntityRepository
-            .findByUsername(username)
-            .ifPresent(user -> {
-                throw new UserAlreadyExistsException();
-            });
+        userEntityRepository.findByUsername(username).ifPresent(user -> {
+            throw new UserAlreadyExistsException();
+        });
 
         var userEntity = UserEntity.of(username, passwordEncoder.encode(password));
         var savedUserEntity = userEntityRepository.save(userEntity);
@@ -61,8 +71,7 @@ public class UserService implements UserDetailsService {
 
     public UserAuthenticationResponse authenticate(@NotEmpty String username,
         @NotEmpty String password) {
-        var userEntity = userEntityRepository
-            .findByUsername(username)
+        var userEntity = userEntityRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
 
         if (passwordEncoder.matches(password, userEntity.getPassword())) {
@@ -88,8 +97,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUser(String username, UserEntity currentUser) {
-        var userEntity = userEntityRepository
-            .findByUsername(username)
+        var userEntity = userEntityRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
 
         return getUserWithFollowingStatus(userEntity, currentUser);
@@ -103,8 +111,7 @@ public class UserService implements UserDetailsService {
 
     public User updateUser(String username, UserPatchRequestBody userPatchRequestBody,
         UserEntity currentUser) {
-        var userEntity = userEntityRepository
-            .findByUsername(username)
+        var userEntity = userEntityRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
 
         if (!userEntity.equals(currentUser)) {
@@ -120,8 +127,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User follow(String username, UserEntity currentUser) {
-        var following = userEntityRepository
-            .findByUsername(username)
+        var following = userEntityRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
 
         if (following.equals(currentUser)) {
@@ -129,14 +135,10 @@ public class UserService implements UserDetailsService {
         }
 
         followEntityRepository.findByFollowerAndFollowing(currentUser, following)
-            .ifPresent(
-                follow -> {
-                    throw new FollowAlreadyExistsException(currentUser, following);
-                }
-            );
-        followEntityRepository.save(
-            FollowEntity.of(currentUser, following)
-        );
+            .ifPresent(follow -> {
+                throw new FollowAlreadyExistsException(currentUser, following);
+            });
+        followEntityRepository.save(FollowEntity.of(currentUser, following));
 
         following.setFollowersCount(following.getFollowersCount() + 1);
         currentUser.setFollowingsCount(currentUser.getFollowingsCount() + 1);
@@ -150,20 +152,15 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User unfollow(String username, UserEntity currentUser) {
-        var following = userEntityRepository
-            .findByUsername(username)
+        var following = userEntityRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
 
         if (following.equals(currentUser)) {
             throw new InvalidFollowException("You cannot unfollow yourself");
         }
 
-        var followEntity =
-            followEntityRepository
-                .findByFollowerAndFollowing(currentUser, following)
-                .orElseThrow(
-                    () -> new FollowNotFoundException(currentUser, following)
-                );
+        var followEntity = followEntityRepository.findByFollowerAndFollowing(currentUser, following)
+            .orElseThrow(() -> new FollowNotFoundException(currentUser, following));
 
         followEntityRepository.delete(followEntity);
 
@@ -177,25 +174,53 @@ public class UserService implements UserDetailsService {
         return User.from(following, false);
     }
 
-    public List<User> getFollowersByUsername(String username, UserEntity currentUser) {
-        var following =
-            userEntityRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+    public List<Follower> getFollowersByUsername(String username, UserEntity currentUser) {
+        var following = userEntityRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
 
         var followEntities = followEntityRepository.findByFollowing(following);
-        return followEntities.stream()
-            .map(follow -> getUserWithFollowingStatus(follow.getFollower(), currentUser)).toList();
+        return followEntities.stream().map(
+            follow -> Follower.from(getUserWithFollowingStatus(follow.getFollower(), currentUser),
+                follow.getCreatedDateTime())).toList();
     }
 
     public List<User> getFollowingsByUsername(String username, UserEntity currentUser) {
-        var follower =
-            userEntityRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+        var follower = userEntityRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
 
         var followEntities = followEntityRepository.findByFollower(follower);
         return followEntities.stream()
             .map(follow -> getUserWithFollowingStatus(follow.getFollowing(), currentUser)).toList();
+    }
+
+    public List<LikedUser> getLikedUsersByPostId(Long postId, UserEntity currentUser) {
+        var postEntity = postEntityRepository.findById(postId)
+            .orElseThrow(() -> new PostNotFoundException(postId));
+
+        var likeEntities = likeEntityRepository.findByPost(postEntity);
+        return likeEntities.stream()
+            .map(likeEntity -> getLikedUserWithFollowingStatus(likeEntity, postEntity, currentUser))
+            .toList();
+    }
+
+    private LikedUser getLikedUserWithFollowingStatus(LikeEntity likeEntity, PostEntity postEntity,
+        UserEntity currentUser) {
+        var likedUserEntity = likeEntity.getUser();
+        var userWithFollowingStatus = getUserWithFollowingStatus(likedUserEntity, currentUser);
+        return LikedUser.from(userWithFollowingStatus, postEntity.getPostId(),
+            likeEntity.getCreatedDateTime());
+    }
+
+    public List<LikedUser> getLikedUsersByUser(String username, UserEntity currentUser) {
+        var userEntity = userEntityRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+
+        var postEntities = postEntityRepository.findByUser(userEntity);
+
+        return postEntities.stream().flatMap(postEntity -> {
+            var likeEntities = likeEntityRepository.findByPost(postEntity);
+            return likeEntities.stream().map(
+                likeEntity -> getLikedUserWithFollowingStatus(likeEntity, postEntity, currentUser));
+        }).toList();
     }
 }

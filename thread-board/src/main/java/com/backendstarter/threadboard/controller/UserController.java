@@ -2,12 +2,16 @@ package com.backendstarter.threadboard.controller;
 
 import com.backendstarter.threadboard.model.entity.UserEntity;
 import com.backendstarter.threadboard.model.post.Post;
+import com.backendstarter.threadboard.model.reply.Reply;
+import com.backendstarter.threadboard.model.user.Follower;
+import com.backendstarter.threadboard.model.user.LikedUser;
 import com.backendstarter.threadboard.model.user.User;
 import com.backendstarter.threadboard.model.user.UserAuthenticationResponse;
 import com.backendstarter.threadboard.model.user.UserLoginRequestBody;
 import com.backendstarter.threadboard.model.user.UserPatchRequestBody;
 import com.backendstarter.threadboard.model.user.UserSignUpRequestBody;
 import com.backendstarter.threadboard.service.PostService;
+import com.backendstarter.threadboard.service.ReplyService;
 import com.backendstarter.threadboard.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -32,17 +36,21 @@ public class UserController {
     UserService userService;
     @Autowired
     PostService postService;
+    @Autowired
+    ReplyService replyService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String query, Authentication authentication) {
-        var users = userService.getUsers(query,(UserEntity)authentication.getPrincipal());
+    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String query,
+        Authentication authentication) {
+        var users = userService.getUsers(query, (UserEntity) authentication.getPrincipal());
 
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<User> getUser(@PathVariable String username, Authentication authentication) {
-        var user = userService.getUser(username, (UserEntity)authentication.getPrincipal());
+    public ResponseEntity<User> getUser(@PathVariable String username,
+        Authentication authentication) {
+        var user = userService.getUser(username, (UserEntity) authentication.getPrincipal());
 
         return ResponseEntity.ok(user);
     }
@@ -58,8 +66,10 @@ public class UserController {
     }
 
     @GetMapping("/{username}/posts")
-    public ResponseEntity<List<Post>> getPostsByUsername(@PathVariable String username, Authentication authentication) {
-        var posts = postService.getPostsByUsername(username, (UserEntity)authentication.getPrincipal());
+    public ResponseEntity<List<Post>> getPostsByUsername(@PathVariable String username,
+        Authentication authentication) {
+        var posts = postService.getPostsByUsername(username,
+            (UserEntity) authentication.getPrincipal());
 
         return ResponseEntity.ok(posts);
     }
@@ -79,15 +89,33 @@ public class UserController {
     }
 
     @GetMapping("/{username}/followers")
-    public ResponseEntity<List<User>> getFollowersByUser(@PathVariable String username, Authentication authentication) {
-        var followers = userService.getFollowersByUsername(username, (UserEntity)authentication.getPrincipal());
+    public ResponseEntity<List<Follower>> getFollowersByUser(@PathVariable String username,
+        Authentication authentication) {
+        var followers = userService.getFollowersByUsername(username,
+            (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(followers);
     }
 
     @GetMapping("/{username}/followings")
-    public ResponseEntity<List<User>> getFollowingsByUser(@PathVariable String username, Authentication authentication) {
-        var followings = userService.getFollowingsByUsername(username, (UserEntity)authentication.getPrincipal());
+    public ResponseEntity<List<User>> getFollowingsByUser(@PathVariable String username,
+        Authentication authentication) {
+        var followings = userService.getFollowingsByUsername(username,
+            (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(followings);
+    }
+
+    @GetMapping("/{username}/replies")
+    public ResponseEntity<List<Reply>> getRepliesByUser(@PathVariable String username) {
+        var replies = replyService.getRepliesByUser(username);
+        return ResponseEntity.ok(replies);
+    }
+
+    @GetMapping("/{username}/liked-users")
+    public ResponseEntity<List<LikedUser>> getLikedUsersByUser(@PathVariable String username,
+        Authentication authentication) {
+        var likedUsers = userService.getLikedUsersByUser(username,
+            (UserEntity) authentication.getPrincipal());
+        return ResponseEntity.ok(likedUsers);
     }
 
 

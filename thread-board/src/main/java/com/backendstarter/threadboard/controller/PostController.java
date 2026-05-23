@@ -4,7 +4,9 @@ import com.backendstarter.threadboard.model.entity.UserEntity;
 import com.backendstarter.threadboard.model.post.Post;
 import com.backendstarter.threadboard.model.post.PostPatchRequestBody;
 import com.backendstarter.threadboard.model.post.PostPostRequestBody;
+import com.backendstarter.threadboard.model.user.LikedUser;
 import com.backendstarter.threadboard.service.PostService;
+import com.backendstarter.threadboard.service.UserService;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,8 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public ResponseEntity<List<Post>> getPosts(Authentication authentication) {
@@ -37,10 +41,23 @@ public class PostController {
 
 
     @GetMapping("/{postId}")
-    public ResponseEntity<Post> getPostByPostId(@PathVariable Long postId, Authentication authentication) {
+    public ResponseEntity<Post> getPostByPostId(@PathVariable Long postId,
+        Authentication authentication) {
         logger.info("GET/api/v1/posts/{}", postId);
-        var matchingPost = postService.getPostByPostId(postId,(UserEntity) authentication.getPrincipal());
+        var matchingPost = postService.getPostByPostId(postId,
+            (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(matchingPost);
+    }
+
+
+    @GetMapping("/{postId}/liked-users")
+    public ResponseEntity<List<LikedUser>> getLikedUsersByPostId(@PathVariable Long postId,
+        Authentication authentication) {
+        logger.info("GET/api/v1/posts/{}", postId);
+        var likedUsers = userService.getLikedUsersByPostId(
+            postId, (UserEntity) authentication.getPrincipal()
+        );
+        return ResponseEntity.ok(likedUsers);
     }
 
     @PostMapping

@@ -3,6 +3,7 @@ package com.backendstarter.threadboard.service;
 import com.backendstarter.threadboard.exception.post.PostNotFoundException;
 import com.backendstarter.threadboard.exception.reply.ReplyNotFoundException;
 import com.backendstarter.threadboard.exception.user.UserNotAllowedException;
+import com.backendstarter.threadboard.exception.user.UserNotFoundException;
 import com.backendstarter.threadboard.model.entity.PostEntity;
 import com.backendstarter.threadboard.model.entity.ReplyEntity;
 import com.backendstarter.threadboard.model.entity.UserEntity;
@@ -94,4 +95,13 @@ public class ReplyService {
         postEntityRepository.save(postEntity);
     }
 
+    public List<Reply> getRepliesByUser(String username) {
+        var userEntity =
+            userEntityRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
+
+        var replyEntities = replyEntityRepository.findByUser(userEntity);
+        return replyEntities.stream().map(Reply::from).toList();
+    }
 }
