@@ -74,7 +74,7 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public List<User> getUsers(String query) {
+    public List<User> getUsers(String query, UserEntity currentUser) {
         List<UserEntity> userEntities;
 
         if (query != null && !query.isBlank()) {
@@ -83,15 +83,22 @@ public class UserService implements UserDetailsService {
             userEntities = userEntityRepository.findAll();
         }
 
-        return userEntities.stream().map(User::from).toList();
+        return userEntities.stream()
+            .map(userEntity -> getUserWithFollowingStatus(userEntity, currentUser)).toList();
     }
 
-    public User getUser(String username) {
+    public User getUser(String username, UserEntity currentUser) {
         var userEntity = userEntityRepository
             .findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
 
-        return User.from(userEntity);
+        return getUserWithFollowingStatus(userEntity, currentUser);
+    }
+
+    private User getUserWithFollowingStatus(UserEntity userEntity, UserEntity currentUser) {
+        var isFollowing = followEntityRepository.findByFollowerAndFollowing(currentUser, userEntity)
+            .isPresent();
+        return User.from(userEntity, isFollowing);
     }
 
     public User updateUser(String username, UserPatchRequestBody userPatchRequestBody,
@@ -138,7 +145,7 @@ public class UserService implements UserDetailsService {
         //userEntityRepository.save(currentUser);
         userEntityRepository.saveAll(List.of(currentUser, following));
 
-        return User.from(following);
+        return User.from(following, true);
     }
 
     @Transactional
@@ -160,33 +167,35 @@ public class UserService implements UserDetailsService {
 
         followEntityRepository.delete(followEntity);
 
-        following.setFollowersCount(Math.max(0,following.getFollowersCount() - 1));
-        currentUser.setFollowingsCount(Math.max(0,following.getFollowingsCount() - 1));
+        following.setFollowersCount(Math.max(0, following.getFollowersCount() - 1));
+        currentUser.setFollowingsCount(Math.max(0, currentUser.getFollowingsCount() - 1));
 
         //userEntityRepository.save(following);
         //userEntityRepository.save(currentUser);
         userEntityRepository.saveAll(List.of(currentUser, following));
 
-        return User.from(following);
+        return User.from(following, false);
     }
 
-    public List<User> getFollowersByUsername(String username) {
+    public List<User> getFollowersByUsername(String username, UserEntity currentUser) {
         var following =
             userEntityRepository
                 .findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(username));
 
         var followEntities = followEntityRepository.findByFollowing(following);
-        return followEntities.stream().map(follow -> User.from(follow.getFollower())).toList();
+        return followEntities.stream()
+            .map(follow -> getUserWithFollowingStatus(follow.getFollower(), currentUser)).toList();
     }
 
-    public List<User> getFollowingsByUsername(String username) {
+    public List<User> getFollowingsByUsername(String username, UserEntity currentUser) {
         var follower =
             userEntityRepository
                 .findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(username));
 
         var followEntities = followEntityRepository.findByFollower(follower);
-        return followEntities.stream().map(follow -> User.from(follow.getFollowing())).toList();
+        return followEntities.stream()
+            .map(follow -> getUserWithFollowingStatus(follow.getFollowing(), currentUser)).toList();
     }
 }
