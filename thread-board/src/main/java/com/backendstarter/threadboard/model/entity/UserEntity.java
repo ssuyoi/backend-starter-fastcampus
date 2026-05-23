@@ -11,6 +11,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import org.hibernate.annotations.SQLDelete;
@@ -40,6 +41,12 @@ public class UserEntity implements UserDetails {
 
     @Column
     private String description;
+
+    @Column
+    private Long followersCount = 0L;
+
+    @Column
+    private Long followingsCount = 0L;
 
     @Column
     private ZonedDateTime createdDateTime;
@@ -73,26 +80,6 @@ public class UserEntity implements UserDetails {
         this.updatedDateTime = ZonedDateTime.now();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        UserEntity that = (UserEntity) o;
-        return Objects.equals(userId, that.userId) && Objects.equals(username,
-            that.username) && Objects.equals(password, that.password)
-            && Objects.equals(profile, that.profile) && Objects.equals(description,
-            that.description) && Objects.equals(createdDateTime, that.createdDateTime)
-            && Objects.equals(updatedDateTime, that.updatedDateTime)
-            && Objects.equals(deletedDateTime, that.deletedDateTime);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(userId, username, password, profile, description, createdDateTime,
-            updatedDateTime, deletedDateTime);
-    }
-
     public Long getUserId() {
         return userId;
     }
@@ -101,8 +88,23 @@ public class UserEntity implements UserDetails {
         this.userId = userId;
     }
 
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public @Nullable String getPassword() {
+        return password;
     }
 
     public void setPassword(String password) {
@@ -123,6 +125,22 @@ public class UserEntity implements UserDetails {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getFollowersCount() {
+        return followersCount;
+    }
+
+    public void setFollowersCount(Long followersCount) {
+        this.followersCount = followersCount;
+    }
+
+    public Long getFollowingsCount() {
+        return followingsCount;
+    }
+
+    public void setFollowingsCount(Long followingsCount) {
+        this.followingsCount = followingsCount;
     }
 
     public ZonedDateTime getCreatedDateTime() {
@@ -150,18 +168,25 @@ public class UserEntity implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserEntity that = (UserEntity) o;
+        return Objects.equals(userId, that.userId) && Objects.equals(username,
+            that.username) && Objects.equals(password, that.password)
+            && Objects.equals(profile, that.profile) && Objects.equals(description,
+            that.description) && Objects.equals(followersCount, that.followersCount)
+            && Objects.equals(followingsCount, that.followingsCount)
+            && Objects.equals(createdDateTime, that.createdDateTime)
+            && Objects.equals(updatedDateTime, that.updatedDateTime)
+            && Objects.equals(deletedDateTime, that.deletedDateTime);
     }
 
     @Override
-    public @Nullable String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
+    public int hashCode() {
+        return Objects.hash(userId, username, password, profile, description, followersCount,
+            followingsCount, createdDateTime, updatedDateTime, deletedDateTime);
     }
 
     @Override
