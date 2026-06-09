@@ -18,7 +18,9 @@ public class JwtService {
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
     private final SecretKey key;
 
+    // 테스트 용이성을 위해 jwt secret key 값을 저장해두고 사용
     public JwtService(@Value("${jwt.secret-key}") String key) {
+        // Base64 인코딩으로 되어있는 key 값을 디코딩해서 Hmac 알고리즘을 사용하는 key로 변경
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
     }
 
@@ -43,7 +45,11 @@ public class JwtService {
     // jwt subject 가져오기
     private String getSubject(String token) {
         try {
-            return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload()
+            return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
         } catch (JwtException e) {
             logger.error("JwtException", e);

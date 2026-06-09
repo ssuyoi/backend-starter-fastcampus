@@ -16,6 +16,9 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // 5xx 서버 에러의 구체적인 내용을 클라이언트에게 알려줄 필요가 없음
+    // -> 오히려 보안 측면에서 취약해질 수 있음
+    // 단순하게 500 InternalServerError
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ClientErrorResponse> handleRuntimeException(RuntimeException e) {
         return  ResponseEntity.internalServerError().build();
