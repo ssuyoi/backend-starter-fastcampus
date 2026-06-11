@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -38,10 +39,15 @@ public class WebConfiguration {
     SecurityFilterChain filterChain(HttpSecurity http, JwtExceptionFilter jwtExceptionFilter) throws Exception {
         // cors 설정 별도로 덮어쓰기 위해 기본 설정으로 생성
         http.cors(Customizer.withDefaults())
-            // 모든 Http 요청 허용
             .authorizeHttpRequests(
                 (requests) ->
-                    requests.anyRequest().permitAll())
+                    requests
+                        // 정해진 url만 허용
+                        .requestMatchers(HttpMethod.POST, "/api/*/users", "/api/*/users/authenticate")
+                        .permitAll()
+                        // 나머지에 대해서는 인증 확인
+                        .anyRequest()
+                        .authenticated())
             // session stateless
             .sessionManagement(
                 (session) ->
