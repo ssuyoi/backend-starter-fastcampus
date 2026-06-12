@@ -1,5 +1,6 @@
 package com.backendstarter.crash.config;
 
+import com.backendstarter.crash.model.user.Role;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -42,9 +43,15 @@ public class WebConfiguration {
             .authorizeHttpRequests(
                 (requests) ->
                     requests
-                        // 정해진 url만 허용
+                        // 정해진 메서드와 url에 모든 권한 허용
                         .requestMatchers(HttpMethod.POST, "/api/*/users", "/api/*/users/authenticate")
                         .permitAll()
+                        // 해당 URL 중 GET 메서드 접근에는 허용, 나머지는 ADMIN Role인지 확인 후 허용
+                        .requestMatchers(HttpMethod.GET, "/api/*/session-speakers", "/api/*/session-speakers/**")
+                        .permitAll()
+                        .requestMatchers("/api/*/session-speakers", "/api/*/session-speakers/**")
+                        .hasAuthority(Role.ADMIN.name())
+                        //.hasRole(Role.ADMIN.name())
                         // 나머지에 대해서는 인증 확인
                         .anyRequest()
                         .authenticated())
