@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    // dataFaker
+    implementation("net.datafaker:datafaker:2.5.4")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
