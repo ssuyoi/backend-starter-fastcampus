@@ -47,9 +47,18 @@ public class WebConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/*/users", "/api/*/users/authenticate")
                         .permitAll()
                         // 해당 URL 중 GET 메서드 접근에는 허용, 나머지는 ADMIN Role인지 확인 후 허용
-                        .requestMatchers(HttpMethod.GET, "/api/*/session-speakers", "/api/*/session-speakers/**")
+                        .requestMatchers(
+                            HttpMethod.GET,
+                            "/api/*/session-speakers",
+                            "/api/*/session-speakers/**",
+                            "/api/*/crash-sessions",
+                            "/api/*/crash-sessions/**")
                         .permitAll()
-                        .requestMatchers("/api/*/session-speakers", "/api/*/session-speakers/**")
+                        .requestMatchers(
+                            "/api/*/session-speakers",
+                            "/api/*/session-speakers/**",
+                            "/api/*/crash-sessions",
+                            "/api/*/crash-sessions/**")
                         .hasAuthority(Role.ADMIN.name())
                         //.hasRole(Role.ADMIN.name())
                         // 나머지에 대해서는 인증 확인

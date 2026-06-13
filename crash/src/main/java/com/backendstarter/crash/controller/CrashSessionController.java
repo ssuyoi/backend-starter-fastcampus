@@ -3,15 +3,19 @@ package com.backendstarter.crash.controller;
 import com.backendstarter.crash.model.crashsession.CrashSession;
 import com.backendstarter.crash.model.crashsession.CrashSessionPatchRequestBody;
 import com.backendstarter.crash.model.crashsession.CrashSessionPostRequestBody;
+import com.backendstarter.crash.model.crashsession.CrashSessionRegistrationStatus;
+import com.backendstarter.crash.model.entity.UserEntity;
 import com.backendstarter.crash.model.sessionspeaker.SessionSpeaker;
 import com.backendstarter.crash.model.sessionspeaker.SessionSpeakerPatchRequestBody;
 import com.backendstarter.crash.model.sessionspeaker.SessionSpeakerPostRequestBody;
 import com.backendstarter.crash.service.CrashSessionService;
+import com.backendstarter.crash.service.RegistrationService;
 import com.backendstarter.crash.service.SessionSpeakerService;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CrashSessionController {
 
     @Autowired private CrashSessionService crashSessionService;
+    @Autowired private RegistrationService registrationService;
 
     @GetMapping()
     public ResponseEntity<List<CrashSession>> getCrashSessions() {
@@ -41,6 +46,23 @@ public class CrashSessionController {
         return ResponseEntity.ok(crashSession);
     }
 
+    /**
+     * 로그인 되어 있는 유저가 해당 세션을 신청했는지 체크하는 API
+     */
+    @GetMapping("/{sessionId}/registration-status")
+    public ResponseEntity<CrashSessionRegistrationStatus> getCrashSessionRegistrationStatusBySessionId(
+        @PathVariable Long sessionId,
+        Authentication authentication
+    ) {
+        var registrationStatus =
+            registrationService
+                .getCrashSessionRegistrationStatusBySessionIdAndCurrentUser(
+                    sessionId,
+                    (UserEntity) authentication.getPrincipal()
+                );
+        return ResponseEntity.ok(registrationStatus);
+    }
+
     @PostMapping
     public ResponseEntity<CrashSession> createCrashSession(
         @Valid @RequestBody CrashSessionPostRequestBody crashSessionPostRequestBody
@@ -50,7 +72,7 @@ public class CrashSessionController {
     }
 
     @PatchMapping("/{sessionId}")
-    public ResponseEntity<CrashSession> updateSessionSpeaker(
+    public ResponseEntity<CrashSession> updateCrashSession(
         @PathVariable Long sessionId,
         @RequestBody CrashSessionPatchRequestBody crashSessionPatchRequestBody
     ) {
