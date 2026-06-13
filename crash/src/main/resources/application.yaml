@@ -2,3 +2,6 @@ spring:
   security:
     user.name: ${USERNAME}
     user.password: ${PASSWORD}
+
+korea-exim:
+  api-key: ${KOREA_EXIM_API_KEY}
