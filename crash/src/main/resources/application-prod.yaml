@@ -17,3 +17,7 @@ spring:
 
 jwt:
   secret-key: ${JWT_SECRET}
+
+redis:
+  host: localhost
+  port: 6379

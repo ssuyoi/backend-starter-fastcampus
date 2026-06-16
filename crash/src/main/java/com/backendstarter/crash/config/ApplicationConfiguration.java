@@ -60,8 +60,8 @@ public class ApplicationConfiguration {
         return new ApplicationRunner() {
             @Override
             public void run(ApplicationArguments args) throws Exception {
-//                createTestUsers();
-//                createTestSessionSpeakers(10);
+                createTestUsers();
+                createTestSessionSpeakers(10);
                 // Bitcoin USD 가격 조회
                 var bitcoinUsdPrice = getBitcoinUsdPrice();
                 // USD to KRW 환율 조회

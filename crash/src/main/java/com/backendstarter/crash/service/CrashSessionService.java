@@ -5,6 +5,7 @@ import com.backendstarter.crash.model.crashsession.CrashSession;
 import com.backendstarter.crash.model.crashsession.CrashSessionPatchRequestBody;
 import com.backendstarter.crash.model.crashsession.CrashSessionPostRequestBody;
 import com.backendstarter.crash.model.entity.CrashSessionEntity;
+import com.backendstarter.crash.repository.CrashSessionCacheRepository;
 import com.backendstarter.crash.repository.CrashSessionEntityRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ public class CrashSessionService {
     @Autowired
     private CrashSessionEntityRepository crashSessionEntityRepository;
     @Autowired
+    private CrashSessionCacheRepository crashSessionCacheRepository;
+    @Autowired
     private SessionSpeakerService sessionSpeakerService;
 
     /**
@@ -25,12 +28,15 @@ public class CrashSessionService {
      * @return 전체 {@link CrashSession} 목록
      */
     public List<CrashSession> getCrashSessions() {
-        return crashSessionEntityRepository.findAll()
-            .stream()
-            .map(CrashSession::from)
-            .toList();
+        var crashSessions = crashSessionCacheRepository.getCrashSessionsListCache();
+        if (!ObjectUtils.isEmpty(crashSessions)) {
+            return crashSessions;
+        } else {
+            var crashSessionsList = crashSessionEntityRepository.findAll().stream().map(CrashSession::from).toList();
+            crashSessionCacheRepository.setCrashSessionsListCache(crashSessionsList);
+            return crashSessionsList;
+        }
     }
-
 
     /**
      * sessionId에 해당하는 CrashSession 조회
@@ -40,8 +46,16 @@ public class CrashSessionService {
      * @throws com.backendstarter.crash.exception.crashsession.CrashSessionNotFoundException 해당 sessionId가 존재하지 않을 경우
      */
     public CrashSession getCrashSessionBySessionId(Long sessionId) {
-        var crashSessionEntity = getCrashSessionEntityBySessionId(sessionId);
-        return CrashSession.from(crashSessionEntity);
+        return crashSessionCacheRepository
+            .getCrashSessionCache(sessionId)
+            .orElseGet(
+                () -> {
+                    var crashSessionEntity = getCrashSessionEntityBySessionId(sessionId);
+                    var crashSession = CrashSession.from(crashSessionEntity);
+                    crashSessionCacheRepository.setCrashSessionCache(crashSession);
+                    return crashSession;
+                }
+            );
     }
 
     /**

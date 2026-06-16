@@ -7,6 +7,7 @@ import com.backendstarter.crash.model.user.User;
 import com.backendstarter.crash.model.user.UserAuthenticationResponse;
 import com.backendstarter.crash.model.user.UserLoginRequestBody;
 import com.backendstarter.crash.model.user.UserSignUpRequestBody;
+import com.backendstarter.crash.repository.UserEntityCacheRepository;
 import com.backendstarter.crash.repository.UserEntityRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class UserService implements UserDetailsService {
 
     @Autowired private UserEntityRepository userEntityRepository;
+    @Autowired private UserEntityCacheRepository userEntityCacheRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
     @Autowired private JwtService jwtService;
 
@@ -65,7 +67,19 @@ public class UserService implements UserDetailsService {
     }
 
     private UserEntity getUserEntityByUsername(String username) {
-        return userEntityRepository.findByUsername(username)
-            .orElseThrow(() -> new UserNotFoundException(username));
+        var userEntityCache = userEntityCacheRepository.getUserEntityCache(username);
+
+        if (userEntityCache.isPresent()) {
+            return userEntityCache.get();
+        } else {
+            var userEntity =
+                userEntityRepository
+                    .findByUsername(username)
+                    .orElseThrow(() -> new UserNotFoundException(username));
+
+            userEntityCacheRepository.setUserEntityCache(userEntity);
+
+            return userEntity;
+        }
     }
 }
