@@ -1,6 +1,6 @@
 package com.backendstarter.testdata.domain;
 
-import java.time.LocalDateTime;
+import com.backendstarter.testdata.domain.constant.MockDataType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,7 +11,7 @@ import lombok.ToString;
 public class SchemaField {
 
     private String fieldName;
-    private String mockData;
+    private MockDataType mockDataType;
     private Integer fieldOrder;
     private Integer blankPercent;
     private String typeOptionJson; // man, max 등
