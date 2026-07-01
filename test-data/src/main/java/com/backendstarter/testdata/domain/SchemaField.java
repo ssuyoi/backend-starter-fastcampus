@@ -3,6 +3,8 @@ package com.backendstarter.testdata.domain;
 import com.backendstarter.testdata.domain.constant.MockDataType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,14 +34,18 @@ public class SchemaField extends AuditingFields {
     private TableSchema tableSchema;
 
 
-    @Setter
-    private @Column(nullable = false) String fieldName;
-    @Setter
-    private @Column(nullable = false) MockDataType mockDataType;
-    @Setter
-    private @Column(nullable = false) Integer fieldOrder;
-    @Setter
-    private @Column(nullable = false) Integer blankPercent;
+    @Setter @Column(nullable = false)
+    private String fieldName;
+
+    @Setter @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MockDataType mockDataType;
+
+    @Setter @Column(nullable = false)
+    private Integer fieldOrder;
+
+    @Setter @Column(nullable = false)
+    private Integer blankPercent;
 
     private String typeOptionJson; // man, max 등
     private String forceValue;
