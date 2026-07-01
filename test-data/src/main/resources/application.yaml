@@ -21,6 +21,8 @@ logging:
   level:
     root: debug
     org.springframework.web.servelt: debug
+    org.hibernate.orm.jdbc.bind: trace
+    org.springframework.test.context.transaction.TransactionContext: debug
 
 ---
 
