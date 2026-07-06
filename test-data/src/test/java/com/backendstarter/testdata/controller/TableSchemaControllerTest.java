@@ -10,6 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import com.backendstarter.testdata.config.SecurityConfig;
+import com.backendstarter.testdata.domain.constant.MockDataType;
+import com.backendstarter.testdata.dto.request.SchemaFieldRequest;
+import com.backendstarter.testdata.dto.request.TableSchemaRequest;
+import com.backendstarter.testdata.util.FormDataEncoder;
+import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,9 +27,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @Disabled("강의 내용에서 테스트만 다루므로 테스트를 먼저 작성함. 테스트로 스펙을 전달하고, 아직 구현이 없으므로 비활성화")
 @DisplayName("[Controller] 테이블 스키마 컨트롤러 테스트")
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, FormDataEncoder.class})
 @WebMvcTest
-public record TableSchemaControllerTest(@Autowired MockMvc mvc) {
+public record TableSchemaControllerTest(@Autowired MockMvc mvc, @Autowired FormDataEncoder formDataEncoder) {
 
     @DisplayName("[GET] 테이블 스키마 페이지 -> 테이블 스키마 뷰 (정상)")
     @Test
@@ -44,12 +49,21 @@ public record TableSchemaControllerTest(@Autowired MockMvc mvc) {
     @Test
     void givenTableSchemaRequest_whenUpsert_thenRedirectsToTableSchemaView() throws Exception {
         // given
+        TableSchemaRequest request = TableSchemaRequest.of(
+            "test_schema",
+            "홍길동",
+            List.of(
+                SchemaFieldRequest.of("id", MockDataType.ROW_NUMBER, 1, 0, null, null),
+                SchemaFieldRequest.of("name", MockDataType.NAME, 2, 10, null, null),
+                SchemaFieldRequest.of("age", MockDataType.NUMBER, 3, 10, null, null)
+            )
+        );
 
         // when
         // then
         mvc.perform(
                 post("/table-schema")
-                    .content("sample test data") // 변경 필요
+                    .content(formDataEncoder().encode(request))
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .with(csrf())
             )
