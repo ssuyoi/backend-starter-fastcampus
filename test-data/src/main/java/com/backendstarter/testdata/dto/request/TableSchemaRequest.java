@@ -3,15 +3,18 @@ package com.backendstarter.testdata.dto.request;
 import com.backendstarter.testdata.dto.TableSchemaDto;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record TableSchemaRequest(
-    String schemaName,
-    String userId,
-    List<SchemaFieldRequest> schemaFields
-) {
-    public static TableSchemaRequest of(String schemaName, String userId, List<SchemaFieldRequest> schemaFields) {
-        return new TableSchemaRequest(schemaName, userId, schemaFields);
-    }
+@NoArgsConstructor
+@AllArgsConstructor(staticName = "of")
+@Data
+public class TableSchemaRequest {
+
+    private String schemaName;
+    private String userId;
+    private List<SchemaFieldRequest> schemaFields;
 
     public TableSchemaDto toDto() {
         return TableSchemaDto.of(schemaName, userId, null,
