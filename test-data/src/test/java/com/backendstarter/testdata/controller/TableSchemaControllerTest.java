@@ -4,6 +4,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,7 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@Disabled("강의 내용에서 테스트만 다루므로 테스트를 먼저 작성함. 테스트로 스펙을 전달하고, 아직 구현이 없으므로 비활성화")
+//@Disabled("강의 내용에서 테스트만 다루므로 테스트를 먼저 작성함. 테스트로 스펙을 전달하고, 아직 구현이 없으므로 비활성화")
 @DisplayName("[Controller] 테이블 스키마 컨트롤러 테스트")
 @Import({SecurityConfig.class, FormDataEncoder.class})
 @WebMvcTest
@@ -68,6 +69,7 @@ public record TableSchemaControllerTest(@Autowired MockMvc mvc, @Autowired FormD
                     .with(csrf())
             )
             .andExpect(status().is3xxRedirection())
+            .andExpect(flash().attribute("tableSchemaRequest", request))
             .andExpect(redirectedUrl("/table-schema"));
     }
 
