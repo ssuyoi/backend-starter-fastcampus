@@ -59,7 +59,7 @@ class JpaRepositoryTest {
         List<TableSchema> tableSchemas = tableSchemaRepository.findAll();
 
         // then
-        assertThat(mockDataList).hasSize(100);
+        assertThat(mockDataList).hasSize(231);
         assertThat(schemaFields)
             .hasSize(4)
             .first()
@@ -94,9 +94,9 @@ class JpaRepositoryTest {
             .hasFieldOrPropertyWithValue("schemaName", "test_schema")
             .hasFieldOrPropertyWithValue("userId", "ssu")
             .hasFieldOrPropertyWithValue("createdBy", TEST_AUDITOR)
-            .hasFieldOrPropertyWithValue("modifiedBy", TEST_AUDITOR)
+            .hasFieldOrPropertyWithValue("updatedBy", TEST_AUDITOR)
             .hasFieldOrProperty("createdAt")
-            .hasFieldOrProperty("modifiedAt")
+            .hasFieldOrProperty("updatedAt")
             .extracting("schemaFields", InstanceOfAssertFactories.COLLECTION)
             .hasSize(3)
             .extracting("fieldOrder", Integer.class)
@@ -129,8 +129,8 @@ class JpaRepositoryTest {
         // then
         assertThat(updated)
             .hasFieldOrPropertyWithValue("schemaName", "test_modified")
-            .hasFieldOrPropertyWithValue("createdBy", "ssu")
-            .hasFieldOrPropertyWithValue("modifiedBy", TEST_AUDITOR)
+            .hasFieldOrPropertyWithValue("createdBy", "uno")
+            .hasFieldOrPropertyWithValue("updatedBy", TEST_AUDITOR)
             .extracting("schemaFields", InstanceOfAssertFactories.COLLECTION)
             .hasSize(1);
         assertThat(updated.getCreatedAt()).isBefore(updated.getUpdatedAt());

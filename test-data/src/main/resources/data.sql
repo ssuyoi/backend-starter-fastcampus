@@ -1,5 +1,5 @@
 -- 예제 테이블 스키마
-insert into table_schema (id, schema_name, user_id, exported_at, created_at, created_by, modified_at, modified_by)
+insert into table_schema (id, schema_name, user_id, exported_at, created_at, created_by, updated_at, updated_by)
 values
     (1, 'test_schema1', 'djkeh', null, now(), 'uno', now(), 'uno')
 ;
@@ -10,7 +10,7 @@ ALTER TABLE table_schema AUTO_INCREMENT = 2;
 -- 예제 테이블 스키마 필드
 insert into schema_field (table_schema_id, field_order, field_name, mock_data_type,
                           type_option_json, blank_percent, force_value,
-                          created_at, created_by, modified_at, modified_by)
+                          created_at, created_by, updated_at, updated_by)
 values
     (1, 1, 'id', 'ROW_NUMBER', '{"start": 1, "step": 1}', 0, null, now(), 'uno', now(), 'uno'),
     (1, 3, 'age', 'NUMBER', '{"min": 10, "max": 30, "decimals": 0}', 50, null, now(), 'uno', now(), 'uno'),
