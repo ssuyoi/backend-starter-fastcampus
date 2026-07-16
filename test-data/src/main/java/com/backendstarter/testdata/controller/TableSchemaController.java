@@ -1,21 +1,39 @@
 package com.backendstarter.testdata.controller;
 
+import com.backendstarter.testdata.domain.constant.ExportFileType;
+import com.backendstarter.testdata.domain.constant.MockDataType;
+import com.backendstarter.testdata.dto.request.TableSchemaExportRequest;
 import com.backendstarter.testdata.dto.request.TableSchemaRequest;
-import org.apache.coyote.Response;
+import com.backendstarter.testdata.dto.response.SchemaFieldResponse;
+import com.backendstarter.testdata.dto.response.TableSchemaResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@RequiredArgsConstructor
 @Controller
 public class TableSchemaController {
 
+    private final ObjectMapper mapper;
+
     @GetMapping("/table-schema")
-    public String tableSchema(TableSchemaRequest request) {
+    public String tableSchema(Model model) {
+        var tableSchema = defaultTableSchema();
+
+        model.addAttribute("tableSchema", tableSchema);
+        model.addAttribute("mockDataTypes", MockDataType.toObjects());
+        model.addAttribute("fileTypes", Arrays.stream(ExportFileType.values()).toList());
+
         return "table-schema";
     }
 
@@ -43,10 +61,30 @@ public class TableSchemaController {
 
     // @ResponseBody
     @GetMapping("/table-schema/export")
-    public ResponseEntity<String> exportTableSchema(TableSchemaRequest request) {
+    public ResponseEntity<String> exportTableSchema(TableSchemaExportRequest request) {
 
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=table_schema.txt")
-            .body("download complete!");
+            .body(json(request));
+    }
+
+    private static TableSchemaResponse defaultTableSchema() {
+        return new TableSchemaResponse(
+            "schema_name",
+            "ssuyoi",
+            List.of(
+                new SchemaFieldResponse(MockDataType.STRING, "fieldName1", 1, 0, null, null),
+                new SchemaFieldResponse(MockDataType.NUMBER, "fieldName2", 2, 10, null, null),
+                new SchemaFieldResponse(MockDataType.NAME, "fieldName3", 3, 20, null, null)
+            )
+        );
+    }
+
+    private String json(Object object) {
+        try {
+            return mapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
