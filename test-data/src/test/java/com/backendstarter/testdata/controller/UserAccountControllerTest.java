@@ -2,6 +2,7 @@ package com.backendstarter.testdata.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -19,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @DisplayName("[Controller] 회원 컨트롤러 테스트")
 @Import(SecurityConfig.class)
-@WebMvcTest
+@WebMvcTest(UserAccountController.class)
 public record UserAccountControllerTest(
         @Autowired MockMvc mvc
 ) {
@@ -35,6 +36,8 @@ public record UserAccountControllerTest(
         mvc.perform(get("/my-account"))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+            .andExpect(model().attributeExists("nickname"))
+            .andExpect(model().attributeExists("email"))
             .andExpect(view().name("my-account"));
 
     }
