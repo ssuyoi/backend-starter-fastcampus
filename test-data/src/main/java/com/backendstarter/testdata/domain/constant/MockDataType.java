@@ -1,5 +1,7 @@
 package com.backendstarter.testdata.domain.constant;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +28,21 @@ public enum MockDataType {
     private final MockDataType baseType;
 
     /**
+     * static final로 생성해서 toObjects 메소드가 호출될 때마다 매핑 변환 작업을 하지 않도록 한다.
+     * MockDataType은 변동성이 거의 없기 때문에 이 방식이 유용
+     */
+    private static final List<MockDataTypeObject> objects =  Arrays.stream(MockDataType.values())
+        .map(MockDataType::toObject).toList();
+
+    /**
      * 해당 데이터타입이 베이스 타입인지 확인
      */
     public boolean isBaseType() {
         return baseType == null;
+    }
+
+    public static List<MockDataTypeObject> toObjects() {
+        return objects;
     }
 
     public MockDataTypeObject toObject() {
