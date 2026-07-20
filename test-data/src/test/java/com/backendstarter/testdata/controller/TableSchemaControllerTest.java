@@ -129,7 +129,7 @@ public record TableSchemaControllerTest(@Autowired MockMvc mvc, @Autowired FormD
                 .with(csrf())
                 )
             .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/my-schemas"));
+            .andExpect(redirectedUrl("/table-schema/my-schemas"));
     }
 
     @DisplayName("[GET] 테이블 스키마 파일 다운로드 -> 테이블 스키마 파일 (정상)")
