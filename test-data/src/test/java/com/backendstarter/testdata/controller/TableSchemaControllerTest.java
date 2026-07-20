@@ -1,5 +1,6 @@
 package com.backendstarter.testdata.controller;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -20,7 +21,6 @@ import com.backendstarter.testdata.dto.request.TableSchemaRequest;
 import com.backendstarter.testdata.util.FormDataEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +50,25 @@ public record TableSchemaControllerTest(@Autowired MockMvc mvc, @Autowired FormD
             .andExpect(model().attributeExists("tableSchema"))
             .andExpect(model().attributeExists("mockDataTypes"))
             .andExpect(model().attributeExists("fileTypes"))
+            .andExpect(view().name("table-schema"));
+    }
+
+    @DisplayName("[GET] 테이블 스키마 조회, 로그인 + 특정 테이블 스키마 (정상)")
+    @Test
+    void givenAuthenticatedUserAndSchemaName_whenRequesting_thenShowsTableSchema() throws Exception {
+        // given
+        var schemaName = "test_schema";
+
+        // when
+        // then
+        mvc.perform(get("/table-schema").queryParam("schemaName", schemaName))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+            .andExpect(model().attributeExists("tableSchema"))
+            //.andExpect(model().attribute("tableSchema", hasProperty("schemaName", is(schemaName))))
+            .andExpect(model().attributeExists("mockDataTypes"))
+            .andExpect(model().attributeExists("fileTypes"))
+            .andExpect(content().string(containsString(schemaName)))
             .andExpect(view().name("table-schema"));
     }
 
@@ -92,6 +111,7 @@ public record TableSchemaControllerTest(@Autowired MockMvc mvc, @Autowired FormD
         mvc.perform(get("/table-schema/my-schemas"))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+            .andExpect(model().attributeExists("tableSchemas"))
             .andExpect(view().name("my-schemas"));
 
     }
