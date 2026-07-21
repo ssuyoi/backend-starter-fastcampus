@@ -1,7 +1,11 @@
 package com.backendstarter.testdata.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -16,7 +20,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    PathRequest.toStaticResources().atCommonLocations() // 정적 리소스
+                ).permitAll()
+                .requestMatchers(
+                    HttpMethod.GET,           // GET 메서드만
+                    "/",                    // 메인 화면
+                    "table-schema",         // 테이블 스키마 만들기
+                    "table-schema/export"   // 테이블 스키마 내보내기
+                ).permitAll()
+                .anyRequest().authenticated())  // 나머지는 모두 인증 요구
+            .oauth2Login(withDefaults())        // OAuth2 로그인
             .logout(logout -> logout.logoutSuccessUrl("/"))
             .build();
     }
