@@ -69,7 +69,7 @@ class JpaRepositoryTest {
             .hasSize(1)
             .first()
             .hasFieldOrPropertyWithValue("schemaName", "test_schema1")
-            .hasFieldOrPropertyWithValue("userId", "djkeh")
+            .hasFieldOrPropertyWithValue("userId", "ssuyoi")
             .extracting("schemaFields", InstanceOfAssertFactories.COLLECTION)
             .hasSize(4);
     }

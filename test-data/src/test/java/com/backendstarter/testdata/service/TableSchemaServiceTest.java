@@ -88,7 +88,7 @@ class TableSchemaServiceTest {
         // Then
         assertThat(t)
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("테이블 스키마가 없습니다 - userId: " + userId + ", schemaName: " + schemaName);
+            .hasMessage("테이블 스키마가 없습니다 - userId = " + userId + " , schema = " + schemaName);
         then(tableSchemaRepository).should().findBySchemaNameAndUserId(schemaName, userId);
     }
 }
