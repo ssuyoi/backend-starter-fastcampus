@@ -45,6 +45,9 @@ public record TableSchemaDto(
         return new TableSchemaDto(null, schemaName, userId, exportedAt, schemaFields, null, null, null, null);
     }
 
+    /**
+     * Entity -> DTO
+     */
     public static TableSchemaDto fromEntity(TableSchema entity) {
         return new TableSchemaDto(
             entity.getId(),
@@ -61,6 +64,9 @@ public record TableSchemaDto(
         );
     }
 
+    /**
+     * DTO -> Entity
+     */
     public TableSchema createEntity() {
         TableSchema entity =  TableSchema.of(this.schemaName(), this.userId());
         entity.addSchemaFields(schemaFields.stream().map(SchemaFieldDto::createEntity).toList());
