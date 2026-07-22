@@ -35,4 +35,8 @@ public class TableSchemaService {
             .map(TableSchemaDto::fromEntity)
             .orElseThrow(() -> new EntityNotFoundException("테이블 스키마가 없습니다 - userId = " + userId + " , schema = " + schemaName));
     }
+
+    public void saveMySchema(TableSchemaDto dto) {
+        tableSchemaRepository.save(dto.createEntity());
+    }
 }
