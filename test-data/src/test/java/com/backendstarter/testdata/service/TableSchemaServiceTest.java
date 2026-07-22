@@ -11,6 +11,7 @@ import com.backendstarter.testdata.repository.TableSchemaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -90,5 +91,20 @@ class TableSchemaServiceTest {
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage("테이블 스키마가 없습니다 - userId = " + userId + " , schema = " + schemaName);
         then(tableSchemaRepository).should().findBySchemaNameAndUserId(schemaName, userId);
+    }
+
+    @DisplayName("테이블 스키마 정보가 주어지면, 테이블 스키마를 추가한다.")
+    @Test
+    void givenTableSchemaInfo_whenInserting_thenCreatesTableSchema() {
+        // given
+        TableSchemaDto dto = TableSchemaDto.of("table1", "userId", null, Set.of());
+        given(tableSchemaRepository.save(dto.createEntity())).willReturn(null);
+
+        // when
+        sut.saveMySchema(dto);
+
+        // then
+        then(tableSchemaRepository).should().save(dto.createEntity());
+
     }
 }
