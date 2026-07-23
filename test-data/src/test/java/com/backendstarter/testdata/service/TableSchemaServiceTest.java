@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 
 import com.backendstarter.testdata.domain.TableSchema;
 import com.backendstarter.testdata.dto.TableSchemaDto;
@@ -123,6 +124,23 @@ class TableSchemaServiceTest {
         // then
         then(tableSchemaRepository).should().findBySchemaNameAndUserId(dto.schemaName(), dto.userId());
         then(tableSchemaRepository).should().save(dto.createEntity());
+
+    }
+
+    @DisplayName("사용자 ID와 스키마 이름이 주어지면, 테이블 스키마를 삭제한다.")
+    @Test
+    void givenUserIdAndSchemaName_whenDeleting_thenDeletesTableSchema() {
+        // given
+        String userId = "userId";
+        String schemaName = "table1";
+        willDoNothing().given(tableSchemaRepository).deleteBySchemaNameAndUserId(schemaName, userId);
+
+        // when
+        sut.deleteTableSchema(userId, schemaName);
+
+        // then
+        then(tableSchemaRepository).should().deleteBySchemaNameAndUserId(schemaName, userId);
+
 
     }
 }

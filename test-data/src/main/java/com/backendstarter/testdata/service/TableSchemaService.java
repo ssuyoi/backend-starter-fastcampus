@@ -50,4 +50,8 @@ public class TableSchemaService {
                 ); // optional -> ifPresentOrElse
 
     }
+
+    public void deleteTableSchema(String userId, String schemaName) {
+        tableSchemaRepository.deleteBySchemaNameAndUserId(schemaName, userId);
+    }
 }
