@@ -101,9 +101,27 @@ class TableSchemaServiceTest {
         given(tableSchemaRepository.save(dto.createEntity())).willReturn(null);
 
         // when
-        sut.saveMySchema(dto);
+        sut.upsertTableSchema(dto);
 
         // then
+        then(tableSchemaRepository).should().save(dto.createEntity());
+
+    }
+
+    @DisplayName("테이블 스키마 정보가 주어지면, 테이블 스키마를 추가한다.")
+    @Test
+    void givenExistentTableSchemaInfo_whenUpserting_thenUpdatesTableSchema() {
+        // given
+        TableSchemaDto dto = TableSchemaDto.of("table1", "userId", null, Set.of());
+        TableSchema existingTableSchema = TableSchema.of(dto.schemaName(), dto.userId());
+        given(tableSchemaRepository.findBySchemaNameAndUserId(dto.schemaName(), dto.userId()))
+            .willReturn(Optional.of(existingTableSchema));
+
+        // when
+        sut.upsertTableSchema(dto);
+
+        // then
+        then(tableSchemaRepository).should().findBySchemaNameAndUserId(dto.schemaName(), dto.userId());
         then(tableSchemaRepository).should().save(dto.createEntity());
 
     }
