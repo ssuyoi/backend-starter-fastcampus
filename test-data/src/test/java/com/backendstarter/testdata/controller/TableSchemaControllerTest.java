@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlTemplate;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -114,7 +115,7 @@ class TableSchemaControllerTest {
                 SchemaFieldRequest.of("age", MockDataType.NUMBER, 3, 10, null, null)
             )
         );
-        willDoNothing().given(tableSchemaService).saveMySchema(request.toDto(githubUser.id()));
+        willDoNothing().given(tableSchemaService).upsertTableSchema(request.toDto(githubUser.id()));
         // when
         // then
         mvc.perform(
@@ -125,9 +126,8 @@ class TableSchemaControllerTest {
                     .with(oauth2Login().oauth2User(githubUser))
             )
             .andExpect(status().is3xxRedirection())
-            .andExpect(flash().attribute("tableSchemaRequest", request))
-            .andExpect(redirectedUrl("/table-schema"));
-        then(tableSchemaService).should().saveMySchema(request.toDto(githubUser.id()));
+            .andExpect(redirectedUrlTemplate("/table-schema?schemaName={schemaName}", request.getSchemaName()));
+        then(tableSchemaService).should().upsertTableSchema(request.toDto(githubUser.id()));
     }
 
     @DisplayName("[GET] 내 스키마 목록 페이지 -> 내 스키마 목록 뷰 (정상)")

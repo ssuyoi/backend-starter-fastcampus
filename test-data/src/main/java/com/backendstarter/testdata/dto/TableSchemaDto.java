@@ -73,4 +73,21 @@ public record TableSchemaDto(
 
         return entity;
     }
+
+    /**
+     * DTO -> Entity
+     * 필수값에 null이 들어오는 경우 수정하지 않는다.
+     */
+    public TableSchema updateEntity(TableSchema entity) {
+        if (schemaName != null) { entity.setSchemaName(schemaName);}
+        if (userId != null) { entity.setUserId(userId);}
+        entity.setExportedAt(exportedAt);
+        if (schemaFields != null) {
+            entity.clearSchemaFields(); // 기존 fields drop
+            entity.addSchemaFields(
+                schemaFields.stream().map(SchemaFieldDto::createEntity).toList()
+            ); // 새로 채워주기
+        }
+        return entity;
+    }
 }

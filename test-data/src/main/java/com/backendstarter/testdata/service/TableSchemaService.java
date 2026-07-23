@@ -33,10 +33,21 @@ public class TableSchemaService {
     public TableSchemaDto loadMySchema(String userId, String schemaName) {
         return tableSchemaRepository.findBySchemaNameAndUserId(schemaName, userId)
             .map(TableSchemaDto::fromEntity)
-            .orElseThrow(() -> new EntityNotFoundException("테이블 스키마가 없습니다 - userId = " + userId + " , schema = " + schemaName));
+            .orElseThrow(() -> new EntityNotFoundException(
+                "테이블 스키마가 없습니다 - userId = " + userId + " , schema = " + schemaName));
     }
 
-    public void saveMySchema(TableSchemaDto dto) {
-        tableSchemaRepository.save(dto.createEntity());
+    /**
+     * 해당 스키마가 있는지 조회
+     * -> 있으면 수정
+     * -> 없으면 생성
+     */
+    public void upsertTableSchema(TableSchemaDto dto) {
+        tableSchemaRepository.findBySchemaNameAndUserId(dto.schemaName(), dto.userId())
+            .ifPresentOrElse(
+                entity -> tableSchemaRepository.save(dto.updateEntity(entity)),
+                    () -> tableSchemaRepository.save(dto.createEntity())
+                ); // optional -> ifPresentOrElse
+
     }
 }
