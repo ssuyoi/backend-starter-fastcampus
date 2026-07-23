@@ -13,7 +13,7 @@ spring:
     show-sql: true
     properties:
       hibernate.format_sql: true
-  spl.init.mode: always
+  sql.init.mode: always
   security.oauth2.client:
     registration:
       github:
@@ -25,7 +25,7 @@ debug: false
 logging:
   level:
     root: debug
-    org.springframework.web.servelt: debug
+    org.springframework.web.servlet: debug
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.test.context.transaction.TransactionContext: debug
 
