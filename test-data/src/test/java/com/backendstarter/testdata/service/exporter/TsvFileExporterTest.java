@@ -1,26 +1,37 @@
 package com.backendstarter.testdata.service.exporter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 
 import com.backendstarter.testdata.domain.constant.ExportFileType;
 import com.backendstarter.testdata.domain.constant.MockDataType;
 import com.backendstarter.testdata.dto.SchemaFieldDto;
 import com.backendstarter.testdata.dto.TableSchemaDto;
+import com.backendstarter.testdata.service.generator.MockDataGeneratorContext;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @DisplayName("[Logic] TSV 파일 출력기 테스트")
+@ExtendWith(MockitoExtension.class)
 class TsvFileExporterTest {
 
-    private TsvFileExporter sut = new TsvFileExporter();
+    @InjectMocks private TsvFileExporter sut;
+
+    @Mock private MockDataGeneratorContext mockDataGeneratorContext;
 
     @DisplayName("테이블 스키마 정보와 행 수가 주어지면 CSV 형식의 문자열을 생성한다.")
     @Test
     void givenSchemaAndRowCount_whenExporting_thenReturnsTSVFormattedString() {
 
         // given
-        ExportFileType exportFileType = ExportFileType.TSV;
         TableSchemaDto dto = TableSchemaDto.of(
             "test_schema",
             "ssuyoi",
@@ -35,6 +46,7 @@ class TsvFileExporterTest {
         );
 
         int rowCount = 10;
+        given(mockDataGeneratorContext.generate(any(), any(), any(), any())).willReturn("test-value");
 
         // when
         String result = sut.export(dto, rowCount);
@@ -42,6 +54,7 @@ class TsvFileExporterTest {
         // then
         System.out.println(result); // 관찰용
         assertThat(result).startsWith("id\tname\tage\tcar\tcreated_at");
+        then(mockDataGeneratorContext).should(times(rowCount * dto.schemaFields().size())).generate(any(), any(), any(), any());
 
     }
 }

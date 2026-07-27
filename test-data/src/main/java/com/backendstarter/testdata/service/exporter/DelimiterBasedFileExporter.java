@@ -2,11 +2,16 @@ package com.backendstarter.testdata.service.exporter;
 
 import com.backendstarter.testdata.dto.SchemaFieldDto;
 import com.backendstarter.testdata.dto.TableSchemaDto;
+import com.backendstarter.testdata.service.generator.MockDataGeneratorContext;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public abstract class DelimiterBasedFileExporter implements MockDataFileExporter {
+
+    private final MockDataGeneratorContext mockDataGeneratorContext;
 
     /**
      * 파일 열 구분자로 사용할 문자열을 반환한다.
@@ -31,7 +36,12 @@ public abstract class DelimiterBasedFileExporter implements MockDataFileExporter
         IntStream.range(0, rowCount).forEach(i -> {
             sb.append(dto.schemaFields().stream()
                 .sorted(Comparator.comparing(SchemaFieldDto::fieldOrder))
-                .map(field -> "가짜 데이터") //TODO: 구현할 것
+                .map(field -> mockDataGeneratorContext.generate(
+                    field.mockDataType(),
+                    field.blankPercent(),
+                    field.typeOptionJson(),
+                    field.forceValue()
+                ))
                 .map(v -> v == null ? "" : v)
                 .collect(Collectors.joining(getDelimiter()))
             );
