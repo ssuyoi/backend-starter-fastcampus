@@ -8,6 +8,7 @@ import com.backendstarter.testdata.dto.response.SchemaFieldResponse;
 import com.backendstarter.testdata.dto.response.SimpleTableSchemaResponse;
 import com.backendstarter.testdata.dto.response.TableSchemaResponse;
 import com.backendstarter.testdata.dto.security.GithubUser;
+import com.backendstarter.testdata.service.SchemaExportService;
 import com.backendstarter.testdata.service.TableSchemaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class TableSchemaController {
 
     private final TableSchemaService tableSchemaService;
+    private final SchemaExportService schemaExportService;
     private final ObjectMapper mapper;
 
     @GetMapping("/table-schema")
@@ -86,11 +88,21 @@ public class TableSchemaController {
     // @ResponseBody
 
     @GetMapping("/table-schema/export")
-    public ResponseEntity<String> exportTableSchema(TableSchemaExportRequest request) {
+    public ResponseEntity<String> exportTableSchema(
+        @AuthenticationPrincipal GithubUser githubUser,
+        TableSchemaExportRequest request
+    ) {
+        String body = schemaExportService.export(
+            request.getFileType(),
+            request.toDto(githubUser != null ? githubUser.id() : null),
+            request.getRowCount()
+        );
+
+        String fileName = request.getSchemaName() + "." + request.getFileType().name().toLowerCase();
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=table_schema.txt")
-            .body(json(request));
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+            .body(body);
     }
 
     private static TableSchemaResponse defaultTableSchema(String schemaName) {
