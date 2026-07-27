@@ -1,15 +1,17 @@
 package com.backendstarter.testdata.service.exporter;
 
 import com.backendstarter.testdata.domain.constant.ExportFileType;
-import com.backendstarter.testdata.dto.SchemaFieldDto;
-import com.backendstarter.testdata.dto.TableSchemaDto;
-import java.util.Comparator;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import com.backendstarter.testdata.service.generator.MockDataGeneratorContext;
 import org.springframework.stereotype.Component;
+
 
 @Component
 public class CsvFileExporter extends DelimiterBasedFileExporter implements MockDataFileExporter {
+
+    public CsvFileExporter(
+        MockDataGeneratorContext mockDataGeneratorContext) {
+        super(mockDataGeneratorContext);
+    }
 
     @Override
     public ExportFileType getType() {
