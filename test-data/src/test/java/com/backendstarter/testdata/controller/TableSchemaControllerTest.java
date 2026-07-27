@@ -27,6 +27,7 @@ import com.backendstarter.testdata.dto.request.TableSchemaExportRequest;
 import com.backendstarter.testdata.dto.request.TableSchemaRequest;
 import com.backendstarter.testdata.dto.response.SimpleTableSchemaResponse;
 import com.backendstarter.testdata.dto.security.GithubUser;
+import com.backendstarter.testdata.service.SchemaExportService;
 import com.backendstarter.testdata.service.TableSchemaService;
 import com.backendstarter.testdata.util.FormDataEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +58,8 @@ class TableSchemaControllerTest {
 
     @MockitoBean
     private TableSchemaService tableSchemaService;
+    @MockitoBean
+    private SchemaExportService schemaExportService;
 
     @DisplayName("[GET] 테이블 스키마 페이지 -> 비로그인 최초 진입 테이블 스키마 뷰 (정상)")
     @Test
@@ -187,14 +190,14 @@ class TableSchemaControllerTest {
         then(tableSchemaService).should().deleteTableSchema(githubUser.id(), schemaName);
     }
 
-    @DisplayName("[GET] 테이블 스키마 파일 다운로드 -> 테이블 스키마 파일 (정상)")
+    @DisplayName("[GET] 테이블 스키마 파일 다운로드 -> 테이블 스키마 파일, 비로그인 (정상)")
     @Test
     void givenTableSchema_whenDownloading_thenReturnFile() throws Exception {
         // given
         TableSchemaExportRequest request = TableSchemaExportRequest.of(
             "test",
             77,
-            ExportFileType.JSON,
+            ExportFileType.CSV,
             List.of(
                 SchemaFieldRequest.of("id", MockDataType.ROW_NUMBER, 1, 0, null, null),
                 SchemaFieldRequest.of("name", MockDataType.STRING, 1, 0, "option", "well"),
@@ -203,6 +206,9 @@ class TableSchemaControllerTest {
         );
 
         String queryParam = formDataEncoder.encode(request, false);
+        String expectedBody = "id,name,age\n1,option,20";
+        given(schemaExportService.export(request.getFileType(), request.toDto(null), request.getRowCount()))
+            .willReturn(expectedBody);
 
         // when
         // then
@@ -210,8 +216,44 @@ class TableSchemaControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=table_schema.txt"))
-            .andExpect(content().json(mapper.writeValueAsString(request))); // TODO: 변경 필요
+                "attachment; filename=test.csv"))
+            .andExpect(content().string(expectedBody));
+        then(schemaExportService).should().export(request.getFileType(), request.toDto(null), request.getRowCount());
+
+    }
+
+    @DisplayName("[GET] 테이블 스키마 파일 다운로드 -> 테이블 스키마 파일, 로그인 (정상)")
+    @Test
+    void givenAuthenticatedUserAndTableSchema_whenDownloading_thenReturnFile() throws Exception {
+        // given
+        var githubUser = new GithubUser("test-id", "test-name", "test@email.com");
+
+        TableSchemaExportRequest request = TableSchemaExportRequest.of(
+            "test",
+            77,
+            ExportFileType.CSV,
+            List.of(
+                SchemaFieldRequest.of("id", MockDataType.ROW_NUMBER, 1, 0, null, null),
+                SchemaFieldRequest.of("name", MockDataType.STRING, 1, 0, "option", "well"),
+                SchemaFieldRequest.of("age", MockDataType.NUMBER, 3, 20, null, null)
+            )
+        );
+
+        String queryParam = formDataEncoder.encode(request, false);
+        String expectedBody = "id,name,age\n1,option,20";
+        given(schemaExportService.export(request.getFileType(), request.toDto(githubUser.id()), request.getRowCount()))
+            .willReturn(expectedBody);
+
+        // when
+        // then
+        mvc.perform(get("/table-schema/export?" + queryParam)
+                .with(oauth2Login().oauth2User(githubUser)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
+            .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=test.csv"))
+            .andExpect(content().string(expectedBody));
+        then(schemaExportService).should().export(request.getFileType(), request.toDto(githubUser.id()), request.getRowCount());
 
     }
 
