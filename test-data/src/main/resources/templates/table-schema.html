@@ -134,6 +134,14 @@
     ]
   });
   schemaFieldList.sort('field-order-value', { order: 'asc' });
+  const sortable = new Sortable.create(
+      document.getElementById('field-list'),
+      {
+        handle: '.handle',
+        animation: 150,
+        onUpdate: () => { resetData(schemaFieldList); }
+      }
+  )
 
   document.querySelectorAll('.delete-row').forEach(btn => {
     enrollDeleteRowEvent(btn, schemaFieldList);
