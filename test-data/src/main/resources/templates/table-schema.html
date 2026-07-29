@@ -13,12 +13,12 @@
 
 <header class="bg-white shadow">
   <div class="container mx-auto px-4 py-6 flex justify-between items-center">
-    <a th:href="@{/}" class="text-2xl font-bold text-sky-600">테스트 데이터 생성기</a>
+    <a th:href="@{/}" class="text-2xl font-bold text-red-600">테스트 데이터 생성기</a>
     <nav>
-      <a th:href="@{/table-schema/my-schemas}" class="text-gray-600 hover:text-sky-600 mx-2">내 스키마</a>
-      <a th:href="@{/my-account}" class="text-gray-600 hover:text-sky-600 mx-2">내 정보</a>
-      <a th:href="@{/oauth2/authorization/github}" sec:authorize="!isAuthenticated()" class="text-gray-600 hover:text-sky-600 mx-2"><i class="fab fa-github"></i> 로그인</a>
-      <a th:href="@{/logout}" sec:authorize="isAuthenticated()" class="text-gray-600 hover:text-sky-600 mx-2">
+      <a th:href="@{/table-schema/my-schemas}" class="text-gray-600 hover:text-red-600 mx-2">내 스키마</a>
+      <a th:href="@{/my-account}" class="text-gray-600 hover:text-red-600 mx-2">내 정보</a>
+      <a th:href="@{/oauth2/authorization/github}" sec:authorize="!isAuthenticated()" class="text-gray-600 hover:text-red-600 mx-2"><i class="fab fa-github"></i> 로그인</a>
+      <a th:href="@{/logout}" sec:authorize="isAuthenticated()" class="text-gray-600 hover:text-red-600 mx-2">
         <span sec:authentication="principal.name" class="text-gray-400 text-sm mx-1">username</span>
         로그아웃
       </a>
@@ -83,8 +83,8 @@
         </ul>
       </div>
 
-      <button type="button" id="add-row" class="mt-4 bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700">열 추가</button>
-      <button type="submit" class="mt-4 bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700">저장</button>
+      <button type="button" id="add-row" class="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-sky-700">열 추가</button>
+      <button type="submit" class="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-sky-700">저장</button>
     </section>
 
     <section th:object="${tableSchema}">
@@ -102,14 +102,14 @@
       </div>
 
       <div class="text-center">
-        <button type="button" id="export" class="mt-4 bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700">Generate</button>
+        <button type="button" id="export" class="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-sky-700">Generate</button>
       </div>
     </section>
 
     <section id="loading-overlay" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
       <div class="bg-white shadow-lg rounded-lg p-6">
         <div class="text-center">
-          <i class="fas fa-spinner fa-spin text-sky-600 text-3xl"></i>
+          <i class="fas fa-spinner fa-spin text-red-600 text-3xl"></i>
           <p class="text-gray-600 mt-4">파일을 다운로드 중입니다. 잠시만 기다려주세요...</p>
         </div>
       </div>
