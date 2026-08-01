@@ -3,8 +3,6 @@ package com.github.ssuyoi.projectvoucher.domain.employee;
 import com.github.ssuyoi.projectvoucher.app.controller.response.EmployeeResponse;
 import com.github.ssuyoi.projectvoucher.storage.employee.EmployeeEntity;
 import com.github.ssuyoi.projectvoucher.storage.employee.EmployeeRepository;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,6 +26,7 @@ public class EmployeeService {
         EmployeeEntity employee = employeeRepository.findById(no)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        return new EmployeeResponse(employee.getId(), employee.getName(), employee.getPosition(), employee.getDepartment());
+        return new EmployeeResponse(employee.getId(), employee.getName(), employee.getPosition(),
+            employee.getDepartment(), employee.getCreatedAt(), employee.getUpdatedAt());
     }
 }
