@@ -7,11 +7,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  datasource:
-    url: jdbc:mysql://localhost:13306/project-voucher-mysql
-    username: root
-    password: root1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
 logging:
   level:
