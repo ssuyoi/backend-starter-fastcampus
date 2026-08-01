@@ -1,18 +1,13 @@
 package com.github.ssuyoi.projectvoucher.storage.employee;
 
+import com.github.ssuyoi.projectvoucher.storage.BaseEntity;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Table(name = "employee")
 @Entity
-public class EmployeeEntity {
+public class EmployeeEntity extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     private String name;
     private String position;
     private String department;
@@ -26,9 +21,6 @@ public class EmployeeEntity {
         this.department = department;
     }
 
-    public Long getId() {
-        return id;
-    }
 
     public String getName() {
         return name;
