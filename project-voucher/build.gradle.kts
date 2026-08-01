@@ -25,8 +25,10 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     runtimeOnly("com.mysql:mysql-connector-j")
+    runtimeOnly("com.h2database:h2")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
 }
 
 tasks.withType<Test> {
