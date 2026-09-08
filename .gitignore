@@ -67,3 +67,10 @@ Thumbs.db
 # Optional
 # -------------------------
 **/bin/
+
+# -------------------------
+# AI Assistant
+# -------------------------
+CLAUDE.md
+AGENTS.md
+**/.claude/
